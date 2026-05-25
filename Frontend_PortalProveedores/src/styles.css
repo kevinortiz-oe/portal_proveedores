@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply transition-colors duration-500 font-sans min-h-screen flex flex-col;
+    @apply bg-slate-50 text-slate-900;
+  }
+
+  /* Usando el color azul profundo solicitado por el usuario */
+  .dark body {
+    background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
+    @apply text-slate-100;
+  }
+}
+
+@layer components {
+  /* Tarjetas con más relieve y brillo en los bordes */
+  .premium-card {
+    @apply transition-all duration-300;
+    @apply bg-white border border-slate-200 shadow-sm;
+  }
+
+  .dark .premium-card {
+    @apply bg-[#1e293b]/40 backdrop-blur-xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.4)];
+    background: linear-gradient(145deg, rgba(30,41,59,0.7) 0%, rgba(15,23,42,0.9) 100%);
+  }
+
+  .dark .premium-card:hover {
+    @apply border-indigo-500/30 shadow-[0_20px_60px_rgba(79,70,229,0.1)];
+  }
+
+  /* Efecto de orbe de fondo */
+  .bg-orb {
+    @apply absolute rounded-full blur-[120px] pointer-events-none opacity-10;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+.animate-in { animation-duration: 300ms; animation-fill-mode: both; }
+.zoom-in { animation-name: zoomIn; }
+.fade-in { animation-name: fadeIn; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-slate-300 rounded-full border-2 border-transparent bg-clip-padding; }
+.dark ::-webkit-scrollbar-thumb { @apply bg-slate-700; }
+::-webkit-scrollbar-thumb:hover { @apply bg-slate-400; }
+.dark ::-webkit-scrollbar-thumb:hover { @apply bg-slate-600; }

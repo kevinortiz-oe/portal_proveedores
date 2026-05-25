@@ -1,0 +1,15 @@
+### TECNOLITE SPECIFIC RULES
+- **PRODUCT CODES (codigo)**: Extract ONLY the text from the dedicated "CÓDIGO" column on the far left. Do NOT extract any numbers or UPCs that appear within the "DESCRIPCION" column (e.g., "7502225408799" is part of the description, not the code).
+  - **MULTILINE CODES**: If the code is broken into multiple lines (e.g., "MLED-60-IP45-127V-" on one line and "CD/BC" on the next), you MUST merge them into a single string without spaces (e.g., "MLED-60-IP45-127V-CD/BC").
+- **DESCRIPTION (descripcion)**: Extract the full text from the "DESCRIPCION" column. Include any UPC numbers that appear at the start of the description text. Do NOT truncate the text.
+- **PREFIX REMOVAL**: Most product codes start with the prefix **"Z12-"**. You MUST remove this prefix from the resulting JSON. 
+  - *Example*: `Z12-LT-FLP/100W-W` should be extracted as `LT-FLP/100W-W`.
+- **TAXES (montoImpuesto)**: Search for an **"IMPUESTOS"** column or section near the items and map the value to `montoImpuesto` at the item level.
+- **UNITS (unidadMedida)**: These invoices often lack a dedicated unit column. If not found, you may leave the field blank.
+- **DANGER**: Ignore generic "Clave Prod/Serv" (SAT codes) and focus on the internal commercial code from the "CÓDIGO" column.
+- **Series & Number (serie, numero)**: 
+    - **Serie**: Find the label **"Serie:"**. Extract the alphanumeric code immediately following it (e.g., "Serie: A2730CEF" -> `serie`: "A2730CEF").
+    - **Number (numero)**: Find the label **"No.:"**. Extract the long numeric string following it (e.g., "No.: 3092729758" -> `numero`: "3092729758").
+    - **CRITICAL - FIELD SWAP**: Do NOT swap these. `serie` is the alphanumeric code (A2730CEF) and `numero` is the numeric code (3092729758).
+- **Purchase Order (no_pedido)**: Look in the **"OBSERVACIONES"** section at the bottom. Extract the value labeled as **"OC"** (e.g., "OC VOL-210469" -> `no_pedido`: "VOL-210469").
+    - **PRIORITY**: Always prioritize the code after "OC". Ignore other numbers like "Pedidos" or "Entregas" for the `no_pedido` field.

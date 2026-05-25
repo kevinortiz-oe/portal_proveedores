@@ -1,0 +1,88 @@
+# ==========================================
+# Root .gitignore for Portal de Proveedores
+# ==========================================
+
+# ------------------------------------------
+# Operating System Specific Files
+# ------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+*~
+.directory
+.Trash-*
+
+# ------------------------------------------
+# IDEs and Editors
+# ------------------------------------------
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+.history/
+.vscode/
+.phpintel/
+
+# ------------------------------------------
+# System PHP & Composer configurations at root
+# ------------------------------------------
+composer.phar
+composer-setup.php
+php.ini
+custom-php.ini
+
+# ------------------------------------------
+# Backend (CodeIgniter 4) - Specific ignores
+# ------------------------------------------
+Backend_PortalProveedores/.env
+Backend_PortalProveedores/.env.production
+Backend_PortalProveedores/vendor/
+Backend_PortalProveedores/writable/cache/*
+!Backend_PortalProveedores/writable/cache/index.html
+Backend_PortalProveedores/writable/logs/*
+!Backend_PortalProveedores/writable/logs/index.html
+Backend_PortalProveedores/writable/session/*
+!Backend_PortalProveedores/writable/session/index.html
+Backend_PortalProveedores/writable/uploads/*
+!Backend_PortalProveedores/writable/uploads/index.html
+Backend_PortalProveedores/writable/debugbar/*
+!Backend_PortalProveedores/writable/debugbar/index.html
+Backend_PortalProveedores/php_errors.log
+Backend_PortalProveedores/tests/coverage*
+Backend_PortalProveedores/phpunit
+Backend_PortalProveedores/results/
+Backend_PortalProveedores/phpunit*.xml
+Backend_PortalProveedores/_modules/*
+Backend_PortalProveedores/.php-version
+
+# ------------------------------------------
+# Frontend (Angular 16) - Specific ignores
+# ------------------------------------------
+Frontend_PortalProveedores/dist/
+Frontend_PortalProveedores/tmp/
+Frontend_PortalProveedores/out-tsc/
+Frontend_PortalProveedores/bazel-out/
+Frontend_PortalProveedores/node_modules/
+Frontend_PortalProveedores/npm-debug.log
+Frontend_PortalProveedores/yarn-error.log
+Frontend_PortalProveedores/.angular/
+Frontend_PortalProveedores/.sass-cache/
+Frontend_PortalProveedores/connect.lock
+Frontend_PortalProveedores/coverage/
+Frontend_PortalProveedores/libpeerconnection.log
+Frontend_PortalProveedores/testem.log
+Frontend_PortalProveedores/typings/

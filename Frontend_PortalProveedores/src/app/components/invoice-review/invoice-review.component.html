@@ -1,0 +1,256 @@
+<div *ngIf="isOpen" 
+     class="fixed top-0 left-0 w-full h-full z-[999999] bg-white dark:bg-[#0f172a] flex flex-col animate-in fade-in duration-200 overflow-hidden"
+     style="position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important;">
+  
+  <!-- Header (Immersive) -->
+  <div class="w-full px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#0f172a] shrink-0">
+    <div class="flex items-center gap-4">
+      <div class="p-2.5 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-600/30">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+      </div>
+      <div>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Validación de Datos</h2>
+        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{invoice.serie}} - {{invoice.numero}}</span>
+      </div>
+    </div>
+    
+    <button (click)="onCancel()" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 font-bold hover:bg-red-500 hover:text-white transition-all text-xs uppercase tracking-widest shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+        Cerrar Verificación
+    </button>
+  </div>
+
+  <div class="flex-1 flex overflow-hidden bg-slate-50 dark:bg-[#0b0e14]">
+    
+    <!-- LEFT PANEL: PDF Viewer -->
+    <div *ngIf="pdfUrl" class="w-1/2 border-r border-slate-200 dark:border-white/10 flex flex-col bg-slate-200 dark:bg-black/50">
+      <div class="p-2 bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest text-center">
+        Documento Original (PDF)
+      </div>
+      <iframe [src]="pdfUrl" class="w-full flex-1 border-0"></iframe>
+    </div>
+
+    <!-- RIGHT PANEL: Data Form -->
+    <div [ngClass]="pdfUrl ? 'w-1/2' : 'w-full'" class="flex flex-col h-full overflow-y-auto custom-scrollbar relative">
+      
+
+
+      <!-- Top Data Panel (High contrast) -->
+      <div class="w-full bg-white dark:bg-[#0f172a] px-6 py-6 border-b border-slate-200 dark:border-white/10">
+          <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              <div class="lg:col-span-9 space-y-4">
+                  <!-- Row 1: Primary identifiers -->
+                  <div class="grid grid-cols-3 gap-4">
+                      <div class="space-y-1">
+                          <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block ml-1" [class.text-red-500]="hasError('serie')">Serie</label>
+                          <input type="text" [(ngModel)]="invoice.serie" (ngModelChange)="validateHeaderFields()"
+                                 class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20 text-[12px] font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm transition-all"
+                                 [ngClass]="{'!border-red-500 !bg-red-50 dark:!bg-red-900/20 text-red-700': hasError('serie')}">
+                      </div>
+                      <div class="space-y-1">
+                          <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block ml-1" [class.text-red-500]="hasError('numero')">Número / DTE</label>
+                          <input type="text" [(ngModel)]="invoice.numero" (ngModelChange)="validateHeaderFields()"
+                                 class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20 text-[12px] font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm transition-all"
+                                 [ngClass]="{'!border-red-500 !bg-red-50 dark:!bg-red-900/20 text-red-700': hasError('numero')}">
+                      </div>
+                      <div class="space-y-1">
+                          <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block ml-1" [class.text-red-500]="hasError('fecha')">Fecha Emisión</label>
+                          <input type="date" [(ngModel)]="invoice.fecha" (ngModelChange)="validateHeaderFields()"
+                                 class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20 text-[12px] font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm transition-all"
+                                 [ngClass]="{'!border-red-500 !bg-red-50 dark:!bg-red-900/20 text-red-700': hasError('fecha')}">
+                      </div>
+                  </div>
+
+                  <!-- Row 2: UUID, Moneda and Tipo de Cambio -->
+                  <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                      <!-- UUID takes 8 columns -->
+                      <div class="md:col-span-8 space-y-1">
+                          <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block ml-1" [class.text-red-500]="hasError('uuid')">No. I/A (UUID)</label>
+                          <input type="text" [(ngModel)]="invoice.uuid" (ngModelChange)="validateHeaderFields()"
+                                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20 text-[12px] font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm transition-all"
+                                 [ngClass]="{'!border-red-500 !bg-red-50 dark:!bg-red-900/20 text-red-700': hasError('uuid')}">
+                      </div>
+                      <!-- Moneda takes 2 columns -->
+                      <div class="md:col-span-2 space-y-1">
+                          <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block ml-1" [class.text-red-500]="hasError('moneda')">Moneda</label>
+                          <select [(ngModel)]="invoice.moneda" (ngModelChange)="validateHeaderFields()"
+                                  class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20 text-[12px] font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm transition-all"
+                                  [ngClass]="{'!border-red-500 !bg-red-50 dark:!bg-red-900/20 text-red-700': hasError('moneda')}">
+                              <option value="USD">USD</option>
+                              <option value="GTQ">GTQ</option>
+                              <option value="MXN">MXN</option>
+                          </select>
+                      </div>
+                      <!-- Tipo de Cambio takes 2 columns -->
+                      <div class="md:col-span-2 space-y-1">
+                          <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block ml-1" [class.text-red-500]="hasError('tipo_cambio')">T. Cambio</label>
+                          <input type="number" [(ngModel)]="invoice.tipo_cambio" step="0.0001" (ngModelChange)="validateHeaderFields()"
+                                 class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20 text-[12px] font-black text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm transition-all"
+                                 [ngClass]="{'!border-red-500 !bg-red-50 dark:!bg-red-900/20 text-red-700': hasError('tipo_cambio')}">
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Totals (Highly readable) -->
+              <div class="lg:col-span-3 grid grid-cols-1 gap-2">
+                  <div class="flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-white/5"
+                       [ngClass]="{'!border-red-500 bg-red-50 dark:bg-red-900/20': hasError('subtotal')}">
+                      <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest" [class.text-red-500]="hasError('subtotal')">Subtotal</span>
+                      <span class="text-sm font-black text-slate-700 dark:text-slate-300 tracking-tight" [class.text-red-600]="hasError('subtotal')">{{ invoice.subtotal | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="flex items-center justify-between px-4 py-2 bg-slate-900 rounded-xl border border-white/5"
+                       [ngClass]="{'!border-red-500 bg-red-900/40': hasError('total_impuestos')}">
+                      <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest" [class.text-red-400]="hasError('total_impuestos')">Impuestos</span>
+                      <span class="text-sm font-black text-indigo-400 tracking-tight" [class.text-red-400]="hasError('total_impuestos')">{{ invoice.total_impuestos | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="flex items-center justify-between px-4 py-2 bg-slate-800 rounded-xl border border-white/5"
+                       [ngClass]="{'!border-red-500 bg-red-900/40': hasError('total_descuento')}">
+                      <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest" [class.text-red-400]="hasError('total_descuento')">Descuentos</span>
+                      <span class="text-sm font-black text-amber-400 tracking-tight" [class.text-red-400]="hasError('total_descuento')">{{ invoice.total_descuento | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="flex items-center justify-between px-4 py-3 bg-indigo-600 rounded-xl shadow-xl shadow-indigo-600/20"
+                       [ngClass]="{'!bg-red-600 !shadow-red-600/30': hasError('total')}">
+                      <span class="text-[9px] font-black text-white/70 uppercase tracking-widest">Total Doc.</span>
+                      <span class="text-xl font-black text-white tracking-tighter">{{ invoice.total | number:'1.2-2' }}</span>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Main Table Section -->
+      <div class="w-full overflow-x-auto flex-1 pb-10">
+          <table class="w-full text-left table-fixed border-collapse min-w-[800px]">
+              <thead class="sticky top-0 z-30 bg-slate-100 dark:bg-[#1e293b] text-slate-600 dark:text-slate-400 text-[9px] font-black uppercase tracking-widest border-b border-slate-200 dark:border-white/10 shadow-sm">
+                  <tr>
+                      <th class="px-2 py-3 w-[11%]">Código</th>
+                      <th class="px-2 py-3 w-[14%]">Descripción</th>
+                      <th class="px-2 py-3 w-[11%]">OC / Pedido</th>
+                      <th class="px-2 py-3 w-[8%] text-right">CANTIDAD</th>
+                      <th class="px-2 py-3 w-[11%] text-right">P. UNITARIO</th>
+                      <th class="px-2 py-3 w-[10%] text-right">DESCUENTO</th>
+                      <th class="px-2 py-3 w-[10%] text-right">IMPUESTO</th>
+                      <th class="px-2 py-3 w-[13%] text-right bg-indigo-500/5 text-indigo-700 dark:text-indigo-400 font-black">TOTAL LÍNEA</th>
+                      <th class="px-2 py-3 w-[12%] text-center">TIPO</th>
+                  </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-white/5 bg-white dark:bg-[#0f172a]">
+                  <tr *ngFor="let item of invoice.items; let i = index" 
+                      class="group transition-all"
+                      [ngClass]="(hasRowError(i, 'importe') || hasRowError(i, 'codigo')) ? 'bg-red-50/50 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20' : 'hover:bg-slate-50 dark:hover:bg-white/[0.02]'">
+                      
+                      <td class="px-2 py-2">
+                          <input type="text" [(ngModel)]="item.codigo"
+                                 (focus)="clearCodeAlert(i)" (click)="clearCodeAlert(i)"
+                                 class="w-full bg-transparent border rounded focus:ring-1 focus:ring-indigo-500 text-[11px] font-bold p-1 transition-all"
+                                 [ngClass]="hasRowError(i, 'codigo') ? 'border-red-500 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 font-black' : 'border-transparent text-slate-600 dark:text-slate-300'">
+                      </td>
+                      <td class="px-2 py-2">
+                          <textarea [(ngModel)]="item.descripcion" rows="1" class="w-full bg-transparent border border-transparent focus:border-indigo-500 rounded text-[11px] font-medium text-slate-700 dark:text-slate-300 p-1 resize-none"></textarea>
+                      </td>
+                      <td class="px-2 py-2">
+                          <input type="text" [(ngModel)]="item.oc_detalle" 
+                                 class="w-full bg-transparent border border-transparent focus:border-indigo-500 rounded text-[11px] font-bold text-slate-600 dark:text-slate-400 p-1">
+                      </td>
+                      <td class="px-2 py-2 text-right">
+                          <input type="text" [(ngModel)]="item.cantidad" (blur)="onBlurFormat(item, 'cantidad', 0)" (ngModelChange)="onItemFieldChange(item)"
+                                 class="w-full bg-transparent border rounded focus:ring-1 focus:ring-indigo-500 text-[12px] font-black text-right text-slate-900 dark:text-white p-1"
+                                 [ngClass]="hasRowError(i, 'importe') ? 'border-red-300 dark:border-red-500/50 bg-red-50/50 dark:bg-red-900/20' : 'border-transparent'">
+                      </td>
+                      <td class="px-2 py-2 text-right">
+                          <input type="text" [(ngModel)]="item.valorUnitario" (blur)="onBlurFormat(item, 'valorUnitario', 4)" (ngModelChange)="onItemFieldChange(item)"
+                                 class="w-full bg-transparent border rounded focus:ring-1 focus:ring-indigo-500 text-[12px] font-black text-right text-slate-800 dark:text-slate-200 p-1"
+                                 [ngClass]="hasRowError(i, 'importe') ? 'border-red-300 dark:border-red-500/50 bg-red-50/50 dark:bg-red-900/20' : 'border-transparent'">
+                      </td>
+                      <td class="px-2 py-2">
+                          <input type="text" [(ngModel)]="item.montoDescuento" (blur)="onBlurFormat(item, 'montoDescuento', 4)" (ngModelChange)="onItemFieldChange(item)"
+                                 class="w-full bg-transparent border border-transparent rounded focus:ring-1 focus:ring-indigo-500 text-[12px] font-black text-right text-slate-800 dark:text-slate-200 p-1">
+                      </td>
+                      <td class="px-2 py-2">
+                          <input type="text" [(ngModel)]="item.montoImpuesto" (blur)="onBlurFormat(item, 'montoImpuesto', 4)" (ngModelChange)="onItemFieldChange(item)"
+                                 class="w-full bg-transparent border border-transparent rounded focus:ring-1 focus:ring-indigo-500 text-[12px] font-black text-right text-indigo-600 dark:text-indigo-400 p-1">
+                      </td>
+                      <td class="px-2 py-2" [ngClass]="hasRowError(i, 'importe') ? '' : 'bg-indigo-500/[0.01] group-hover:bg-indigo-500/[0.03]'">
+                          <input type="text" [(ngModel)]="item.importe" (blur)="onBlurFormat(item, 'importe', 2)" (ngModelChange)="calculateTotal(); revalidateMath()"
+                                 class="w-full bg-transparent border rounded focus:ring-1 focus:ring-indigo-500 text-[12px] font-black text-right p-1"
+                                 [ngClass]="hasRowError(i, 'importe') ? 'border-red-500 text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/40 font-black' : 'border-transparent text-slate-900 dark:text-white'">
+                      </td>
+                      <td class="px-2 py-2">
+                          <select [(ngModel)]="item.tipoBienServicio" class="w-full bg-transparent border border-transparent focus:border-indigo-500 rounded text-[10px] font-bold text-slate-600 dark:text-slate-400 p-1">
+                              <option value="Bien">Bien</option>
+                              <option value="Servicio">Servicio</option>
+                          </select>
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Footer -->
+  <div class="px-8 pt-4 pb-4 border-t border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f172a] shrink-0 flex flex-col gap-3 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] relative z-40">
+    
+    <div class="flex items-center justify-end gap-6">
+      <div class="flex-1">
+        <span *ngIf="validationErrors.length > 0" class="text-xs font-bold text-red-500 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          Corrige los campos en rojo para poder confirmar
+        </span>
+      </div>
+
+      <button (click)="onCancel()" class="px-8 py-3 rounded-xl border border-slate-200 dark:border-white/10 text-slate-500 font-black uppercase text-xs hover:bg-slate-50 dark:hover:bg-white/5 transition-all tracking-widest">
+          CANCELAR
+      </button>
+      <button (click)="onConfirm()" [disabled]="isSubmitting || validationErrors.length > 0"
+              class="px-14 py-3 rounded-xl text-white font-black uppercase text-xs shadow-xl transition-all tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+              [ngClass]="validationErrors.length > 0 ? 'bg-red-500 shadow-red-500/20' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'">
+          {{ isSubmitting ? 'Guardando...' : (validationErrors.length > 0 ? 'Existen Errores' : 'Confirmar Factura') }}
+      </button>
+    </div>
+
+    <!-- Panel de errores con espaciado profesional en los 4 lados -->
+    <div *ngIf="validationErrors.length > 0"
+         class="max-h-40 overflow-y-auto custom-scrollbar
+                bg-red-50 dark:bg-red-950/40
+                border border-red-200 dark:border-red-500/30
+                rounded-xl px-5 py-3 shadow-inner">
+      <ul class="space-y-2">
+        <li *ngFor="let err of validationErrors" class="flex items-start gap-2.5 text-sm font-semibold text-red-700 dark:text-red-300 leading-snug">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 mt-0.5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          <span>{{ err.mensaje }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PROFESSIONAL CUSTOM DIALOG -->
+  <div *ngIf="showConfirmCancel" class="fixed inset-0 z-[1000000] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md animate-in fade-in duration-300">
+      <div class="w-full max-w-md bg-white dark:bg-[#1e293b] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden animate-in zoom-in-95 duration-300">
+          <div class="p-8 text-center">
+              <div class="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+              </div>
+              <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">¿Descartar Operación?</h3>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Se perderán todos los ajustes realizados en esta verificación. Esta acción no se puede deshacer.
+              </p>
+          </div>
+          <div class="flex border-t border-slate-100 dark:border-white/5">
+              <button (click)="dismissCancel()" class="flex-1 px-6 py-5 text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
+                  Continuar Revisión
+              </button>
+              <div class="w-px bg-slate-100 dark:bg-white/5"></div>
+              <button (click)="confirmCancel()" class="flex-1 px-6 py-5 text-sm font-black text-red-500 uppercase tracking-widest hover:bg-red-50 dark:hover:bg-red-500/10 transition-all">
+                  Sí, Descartar
+              </button>
+          </div>
+      </div>
+  </div>
+</div>

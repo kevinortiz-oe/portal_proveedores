@@ -1,0 +1,11 @@
+### SYLVANIA SPECIFIC RULES
+- **Identification**: Sylvania invoices (FEILO SYLVANIA) usually have "SYLVANIA" in the header.
+- **Series & Number (serie, numero)**: 
+    - **Serie**: Find the label **"Serie:"** (usually upper right). Extract the alphanumeric code immediately following it (e.g., "Serie: C34DA1EA" -> `serie`: "C34DA1EA").
+    - **Number (numero)**: Find the label **"No."** located directly below or next to the "Serie:". Extract the long numeric string following it (e.g., "No. 209994670" -> `numero`: "209994670").
+    - **CRITICAL - NO. INTERNO**: You will see a field labeled **"NO. INTERNO"** (e.g., "NO. INTERNO: 36629"). **NEVER** use this value for `numero` or `serie`. It is for internal use only.
+    - **CRITICAL - FIELD SWAP**: Ensure `serie` contains the letters/numbers (C34DA1EA) and `numero` contains the digits (209994670). Do not swap them.
+- **UUID Mapping**: Extract the **"Número de Autorización"** or the long 36-character string as the `uuid`.
+- **Date**: Extract "Fecha Certificación" as the `fecha` in YYYY-MM-DD format.
+- **Purchase Order (no_pedido)**: Extract from the field labeled **"No. ORDEN DE COMPRA"** (e.g., "VOL-209042" -> `no_pedido`: "VOL-209042"). 
+    - **CRITICAL**: Do NOT use "No. ORDEN" (e.g., 58547) for the `no_pedido` field.

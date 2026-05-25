@@ -1,0 +1,85 @@
+<div class="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500 relative overflow-hidden">
+    
+    <!-- Background Elements (Dark Mode) -->
+    <div class="fixed inset-0 pointer-events-none hidden dark:block">
+        <div class="bg-orb w-[800px] h-[800px] bg-indigo-500/20 top-[-300px] right-[-100px] blur-[150px]"></div>
+        <div class="bg-orb w-[600px] h-[600px] bg-blue-900 bottom-[-200px] left-[-100px] opacity-20"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="flex justify-between items-center px-10 py-5 bg-white/80 dark:bg-[#0f172a]/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 sticky top-0 z-[60] shadow-sm dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
+        <div class="flex items-center gap-3 group cursor-pointer">
+            <div class="p-2 bg-indigo-600 rounded-xl group-hover:rotate-6 transition-transform duration-300 shadow-lg shadow-indigo-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-black text-xl text-slate-900 dark:text-white tracking-tight leading-none">Portal</span>
+                <span class="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-[0.2em]">Proveedores</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <!-- Theme Toggle -->
+            <button (click)="toggleTheme()" class="p-3 rounded-2xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 border border-slate-200 dark:border-white/10">
+                <svg *ngIf="!(themeService.isDarkMode$ | async)" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                <svg *ngIf="(themeService.isDarkMode$ | async)" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            </button>
+
+            <!-- User Profile -->
+            <div class="flex items-center gap-4 bg-slate-100 dark:bg-white/5 pl-4 pr-1 py-1 rounded-2xl border border-slate-200 dark:border-white/10 group">
+                <div class="flex flex-col text-right">
+                    <span class="text-xs font-bold text-slate-900 dark:text-white">{{ user?.nombre }}</span>
+                    <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">{{ user?.provider?.name }}</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-inner relative overflow-hidden">
+                    {{ user?.nombre?.substring(0,1) }}
+                    <div *ngIf="user?.rol === 'admin'" class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-[#0f111a] rounded-full"></div>
+                </div>
+            </div>
+            
+            <button class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-red-500/10 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 border border-slate-200 dark:border-white/10 hover:border-red-500/20 transition-all duration-300 font-semibold text-sm group"
+                (click)="logout()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                Salir
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-1 w-full max-w-[1600px] mx-auto p-10 space-y-10 relative z-10">
+        <!-- Admin Navigation -->
+        <div *ngIf="user?.rol === 'admin'" class="flex justify-center">
+            <div class="inline-flex p-1.5 bg-white dark:bg-[#1e293b]/50 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl">
+                <button (click)="activeMode = 'archivos'"
+                    [class]="'flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm transition-all duration-300 ' + (activeMode === 'archivos' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    Carga de Archivos
+                </button>
+                <button (click)="activeMode = 'admin'"
+                    [class]="'flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm transition-all duration-300 ' + (activeMode === 'admin' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+                    Administración
+                </button>
+            </div>
+        </div>
+
+        <!-- Views Container -->
+        <div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <app-file-upload *ngIf="user?.rol !== 'admin' || activeMode === 'archivos'"></app-file-upload>
+            <app-admin-panel *ngIf="user?.rol === 'admin' && activeMode === 'admin'"></app-admin-panel>
+        </div>
+    </main>
+    
+    <footer class="p-8 text-center text-slate-400 dark:text-slate-500 text-xs font-medium border-t border-slate-200 dark:border-white/10 bg-white/30 dark:bg-black/10 relative z-10">
+        &copy; 2026 Portal de Proveedores &bull; Sistema de Gestión Inteligente
+    </footer>
+
+    <!-- MODAL PANTALLA COMPLETA: FUERA del main para que fixed funcione correctamente -->
+    <app-invoice-review
+        [isOpen]="(reviewService.isOpen$ | async) || false"
+        [invoice]="(reviewService.invoice$ | async)"
+        [isSubmitting]="(reviewService.isSaving$ | async) || false"
+        [providerCode]="(reviewService.providerCode$ | async) || ''"
+        (confirmed)="reviewService.confirm($event)"
+        (cancelled)="reviewService.cancel()"
+    ></app-invoice-review>
+</div>

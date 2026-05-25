@@ -1,0 +1,4 @@
+/* Estilos personalizados si son necesarios, la mayoría se maneja con Tailwind */
+:host {
+    display: block;
+}
