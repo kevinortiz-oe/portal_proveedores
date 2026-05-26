@@ -345,8 +345,8 @@ class AuthController extends BaseController
     {
         $userModel = new UserModel();
         $provModel = new ProviderModel();
-        // Filtrar solo usuarios activos (Usar true para compatibilidad con PostgreSQL)
-        $users = $userModel->where('activo', true)->findAll();
+        
+        $users = $userModel->findAll();
         $providers = $provModel->findAll();
 
         $provMap = [];
@@ -362,7 +362,7 @@ class AuthController extends BaseController
                     'nombre_completo' => $u['nombre_completo'],
                     'correo' => $u['correo'],
                     'rol' => $u['rol'],
-                    'activo' => $u['activo'],
+                    'activo' => filter_var($u['activo'], FILTER_VALIDATE_BOOLEAN),
                     'proveedor_id' => $u['proveedor_id'],
                     'proveedor_codigo' => $provMap[$u['proveedor_id']]['codigo'] ?? '-',
                     'proveedor_nombre' => $provMap[$u['proveedor_id']]['nombre'] ?? '-',
