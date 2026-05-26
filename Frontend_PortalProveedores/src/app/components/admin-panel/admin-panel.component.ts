@@ -115,7 +115,7 @@ export class AdminPanelComponent implements OnInit {
 
     // ── USER CREATE ────────────────────────────────────────────
     onCreateUser() {
-        if (!this.newUser.nombreCompleto || !this.newUser.email || !this.newUser.password || !this.newUser.providerCode) {
+        if (!this.newUser.nombreCompleto || !this.newUser.email || !this.newUser.password) {
             this.createUserMessage = 'Por favor complete todos los campos requeridos';
             this.createUserSuccess = false;
             return;
@@ -153,8 +153,7 @@ export class AdminPanelComponent implements OnInit {
             nombre_completo: this.editingUser.nombre_completo,
             correo: this.editingUser.correo,
             rol: this.editingUser.rol,
-            activo: this.editingUser.activo,
-            proveedor_id: this.editingUser.proveedor_id
+            activo: this.editingUser.activo
         };
         if (this.editingUser.password) payload.password = this.editingUser.password;
 

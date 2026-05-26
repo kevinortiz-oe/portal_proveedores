@@ -50,7 +50,8 @@ class AuthController extends BaseController
             return $this->failUnauthorized('Credenciales inválidas');
         }
 
-        if (!$user['activo']) {
+        $userActivo = ($user['activo'] === 't' || $user['activo'] === '1' || $user['activo'] === true || $user['activo'] === 1 || $user['activo'] === 'true');
+        if (!$userActivo) {
             return $this->failForbidden('Usuario inactivo');
         }
 
@@ -200,17 +201,20 @@ class AuthController extends BaseController
         $nombreCompleto = $json->nombreCompleto ?? null;
         $rol = $json->rol ?? 'usuario';
 
-        if (!$providerCode || !$email || !$password || !$nombreCompleto) {
-            return $this->fail('Faltan datos requeridos (providerCode, email, password, nombreCompleto)', 400);
+        if (!$email || !$password || !$nombreCompleto) {
+            return $this->fail('Faltan datos requeridos (email, password, nombreCompleto)', 400);
         }
 
         $provModel = new ProviderModel();
         $userModel = new UserModel();
 
-        // Verificar que el proveedor existe
-        $proveedor = $provModel->where('codigo_proveedor', $providerCode)->first();
-        if (!$proveedor) {
-            return $this->fail('El código de proveedor no existe', 404);
+        $proveedorId = null;
+        if ($providerCode) {
+            // Verificar que el proveedor existe (opcional)
+            $proveedor = $provModel->where('codigo_proveedor', $providerCode)->first();
+            if ($proveedor) {
+                $proveedorId = $proveedor['id'];
+            }
         }
 
         // Verificar que el email no esté registrado
@@ -221,7 +225,7 @@ class AuthController extends BaseController
 
         // Crear usuario
         $userId = $userModel->insert([
-            'proveedor_id' => $proveedor['id'],
+            'proveedor_id' => $proveedorId,
             'correo' => $email,
             'contrasena_hash' => password_hash($password, PASSWORD_DEFAULT),
             'nombre_completo' => $nombreCompleto,
@@ -263,7 +267,7 @@ class AuthController extends BaseController
                     'codigo' => $p['codigo_proveedor'],
                     'nombre' => $p['nombre'],
                     'empresa_compra' => $p['empresa_compra'] ?? null,
-                    'activo' => (bool) $p['activo']  // campo que faltaba
+                    'activo' => ($p['activo'] === 't' || $p['activo'] === '1' || $p['activo'] === true || $p['activo'] === 1 || $p['activo'] === 'true')
                 ];
             }, $providers)
         ]);
@@ -362,7 +366,7 @@ class AuthController extends BaseController
                     'nombre_completo' => $u['nombre_completo'],
                     'correo' => $u['correo'],
                     'rol' => $u['rol'],
-                    'activo' => filter_var($u['activo'], FILTER_VALIDATE_BOOLEAN),
+                    'activo' => ($u['activo'] === 't' || $u['activo'] === '1' || $u['activo'] === true || $u['activo'] === 1 || $u['activo'] === 'true'),
                     'proveedor_id' => $u['proveedor_id'],
                     'proveedor_codigo' => $provMap[$u['proveedor_id']]['codigo'] ?? '-',
                     'proveedor_nombre' => $provMap[$u['proveedor_id']]['nombre'] ?? '-',
