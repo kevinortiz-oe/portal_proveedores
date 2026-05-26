@@ -32,9 +32,12 @@ class InvoiceController extends BaseController
         if (!$userObj) return $this->failUnauthorized('Usuario no válido');
 
         $providerModel = new ProviderModel();
-        $provider = $providerModel->find($userObj['proveedor_id']);
-        if (!$provider) {
+        $provider = null;
+        if ($providerCode) {
             $provider = $providerModel->where('codigo_proveedor', $providerCode)->first();
+        }
+        if (!$provider && !empty($userObj['proveedor_id'])) {
+            $provider = $providerModel->find($userObj['proveedor_id']);
         }
         if (!$provider) return $this->failNotFound('Proveedor no encontrado');
 
@@ -228,12 +231,14 @@ class InvoiceController extends BaseController
         $userObj = $userModel->find($userId);
         
         $providerModel = new ProviderModel();
-        $provider = $providerModel->find($userObj['proveedor_id'] ?? null);
-        if (!$provider) {
-             // Fallback if user has no assigned provider (admin)
-             $provider = $providerModel->where('codigo_proveedor', $json->provider_code ?? '')->first();
+        $provider = null;
+        $reqProviderCode = $json->provider_code ?? ($invoiceData->provider ?? null);
+        if ($reqProviderCode) {
+            $provider = $providerModel->where('codigo_proveedor', $reqProviderCode)->first();
         }
-
+        if (!$provider && !empty($userObj['proveedor_id'])) {
+            $provider = $providerModel->find($userObj['proveedor_id']);
+        }
         if (!$provider) return $this->failNotFound('Proveedor no encontrado');
 
         $db = \Config\Database::connect();
@@ -505,12 +510,12 @@ class InvoiceController extends BaseController
             return $this->failUnauthorized('Usuario no válido');
 
         $providerModel = new ProviderModel();
-        // Buscar el proveedor asignado al usuario
-        $provider = $providerModel->find($userObj['proveedor_id']);
-
-        if (!$provider) {
-            // Fallback al providerCode si el usuario no tiene proveedor_id asignado (ej. admin)
+        $provider = null;
+        if ($providerCode) {
             $provider = $providerModel->where('codigo_proveedor', $providerCode)->first();
+        }
+        if (!$provider && !empty($userObj['proveedor_id'])) {
+            $provider = $providerModel->find($userObj['proveedor_id']);
         }
 
         if (!$provider)

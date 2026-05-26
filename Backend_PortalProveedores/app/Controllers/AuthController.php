@@ -41,15 +41,12 @@ class AuthController extends BaseController
             return $this->failForbidden('El proveedor no está activo');
         }
 
-        // 2. Buscar usuario
+        // 2. Buscar usuario por correo (independiente de su proveedor_id asignado)
         $userModel = new UserModel();
-        $user = $userModel->where('correo', $correo)
-            ->where('proveedor_id', $provider['id'])
-            ->first();
+        $user = $userModel->where('correo', $correo)->first();
 
         if (!$user) {
-            // Por seguridad, mensaje genérico o especifíco según política. 
-            // Aquí diremos credenciales inválidas para no revelar existencia de usuario.
+            // Por seguridad, mensaje genérico para no revelar existencia de usuario.
             return $this->failUnauthorized('Credenciales inválidas');
         }
 
