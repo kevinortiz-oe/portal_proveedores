@@ -85,7 +85,7 @@ export class AdminPanelComponent implements OnInit {
     get filteredUserList() {
         if (!this.searchUserTerm) return this.userList;
         const term = this.searchUserTerm.toLowerCase();
-        return this.userList.filter(u => 
+        return this.userList.filter(u =>
             (u.nombre_completo || '').toLowerCase().includes(term) ||
             (u.correo || '').toLowerCase().includes(term) ||
             (u.proveedor_codigo || u.proveedor_id?.toString() || '').toLowerCase().includes(term) ||
@@ -96,7 +96,7 @@ export class AdminPanelComponent implements OnInit {
     get filteredProviderList() {
         if (!this.searchProviderTerm) return this.providerList;
         const term = this.searchProviderTerm.toLowerCase();
-        return this.providerList.filter(p => 
+        return this.providerList.filter(p =>
             (p.nombre || '').toLowerCase().includes(term) ||
             (p.codigo || '').toLowerCase().includes(term)
         );
